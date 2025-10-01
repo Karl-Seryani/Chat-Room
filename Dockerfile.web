@@ -17,8 +17,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app_with_auth.py .
 COPY database.py .
 COPY .env .
-COPY templates/ ./templates/
-COPY static/ ./static/
+
+# Copy React build
+COPY frontend/dist ./frontend/dist
 
 # Copy SSL certificates for HTTPS
 COPY cert.pem .

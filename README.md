@@ -1,12 +1,14 @@
-# 💬 Real-Time Chat Application with Authentication
+# 🌿 Nature Chat - Real-Time Messaging Platform
 
-A full-stack, real-time messaging platform built with Flask, Socket.IO, and MongoDB. Features secure user authentication, friend request system, private messaging, and persistent chat history with real-time synchronization across clients.
+A beautiful, full-stack real-time messaging platform with stunning nature-themed UI, animated backgrounds, and image sharing. Built with React, Flask, Socket.IO, and MongoDB. Features secure authentication, friend request system, private messaging, persistent chat history, and real-time synchronization.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![React](https://img.shields.io/badge/React-18+-61DAFB.svg)
 ![Flask](https://img.shields.io/badge/Flask-3.0.0-green.svg)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![WebSocket](https://img.shields.io/badge/WebSocket-Socket.IO-black.svg)
+![HTTPS](https://img.shields.io/badge/HTTPS-Enabled-success.svg)
 
 ---
 
@@ -27,13 +29,48 @@ A full-stack, real-time messaging platform built with Flask, Socket.IO, and Mong
 
 ## 🎯 Overview
 
-This is a **production-ready real-time chat application** that implements modern web development practices including WebSocket communication, NoSQL database integration, containerization, and secure authentication. The application supports user registration, friend request workflows, private messaging with persistent storage, and live updates using Socket.IO.
+**Nature Chat** is a **production-ready real-time messaging platform** with a breathtaking nature-themed interface featuring animated backgrounds, glass-morphism effects, and seamless image sharing. This application implements modern web development practices including React SPA architecture, WebSocket communication, NoSQL database integration, and secure authentication.
 
-Built with scalability in mind, the system uses MongoDB Atlas for cloud-based data persistence, Docker for containerization, and implements RESTful API patterns alongside WebSocket event-driven architecture.
+The platform features:
+- 🌿 **Stunning animated nature backgrounds** with floating gradients and drifting particles
+- 🪟 **Glass-morphism UI** with backdrop blur effects
+- 📷 **Image sharing** with preview and size validation
+- 🦋 **Real-time messaging** with Socket.IO
+- 🔐 **Secure authentication** with bcrypt password hashing
+- 🌐 **Public access** via ngrok tunneling
+
+Built with scalability in mind, the system uses MongoDB Atlas for cloud persistence, Docker for containerization, React for a modern SPA experience, and implements RESTful API patterns alongside WebSocket event-driven architecture.
 
 ---
 
 ## ✨ Features
+
+### 🎨 Visual Experience
+- 🌿 **Animated Nature Backgrounds**
+  - Floating gradient orbs that drift and pulse
+  - Drifting particle patterns
+  - Slowly shifting tree silhouettes
+  - 30-second smooth background animations
+  
+- 🪟 **Glass-Morphism UI**
+  - Frosted glass effect (backdrop-blur)
+  - Translucent panels with blur
+  - Modern layered design
+  - Smooth shadows and highlights
+
+- 🎭 **Nature Theme**
+  - "Nature Chat" branding throughout
+  - Nature emoji integration (🌿🦋🌸🌱)
+  - Peaceful, organic color palette
+  - Rounded corners and soft edges
+
+### 📷 Image Sharing
+- 🖼️ **Upload & Share Images**
+  - Click 📷 button to select images
+  - Real-time image preview before sending
+  - 5MB file size limit with validation
+  - Image messages with click-to-enlarge
+  - Remove image option before sending
 
 ### Core Functionality
 - 🔐 **Secure User Authentication**
@@ -51,13 +88,13 @@ Built with scalability in mind, the system uses MongoDB Atlas for cloud-based da
   - One-on-one real-time chat
   - Message persistence in MongoDB
   - Chat history retrieval (last 50 messages)
-  - Message read status tracking
+  - Text and image message support
 
 - 🔍 **User Discovery**
   - Real-time username autocomplete
   - Debounced search (300ms delay)
   - Case-insensitive partial matching
-  - MongoDB regex-based queries
+  - "Search nature lovers" interface
 
 - 🗑️ **Contact Management**
   - Remove contacts with confirmation
@@ -83,13 +120,15 @@ Built with scalability in mind, the system uses MongoDB Atlas for cloud-based da
   - Mobile-first approach
   - Flexbox-based layouts
   - Smooth animations and transitions
-  - Modern gradient UI elements
+  - Glass-morphism gradient UI elements
 
 - 🎨 **Intuitive Interface**
-  - Clean sidebar navigation
-  - Chat window with message bubbles
-  - Contact list with status indicators
+  - React-based SPA with React Router
+  - Clean sidebar navigation with glass effect
+  - Chat window with image/text message bubbles
+  - Contact list with online/offline status
   - Autocomplete dropdown for user search
+  - Toast notifications for user feedback
 
 ---
 
@@ -103,17 +142,26 @@ Built with scalability in mind, the system uses MongoDB Atlas for cloud-based da
 - **Auth**: Flask-Login 0.6.3
 - **Security**: bcrypt 4.1.2
 - **Server**: eventlet 0.33.3
+- **Environment**: python-dotenv
 
 ### Frontend
-- **HTML5** with semantic markup
-- **CSS3** (Flexbox, animations)
-- **JavaScript** (ES6+)
-- **Socket.IO Client** 4.5.4
+- **Framework**: React 18+ (with Vite)
+- **Routing**: React Router DOM 6+
+- **State Management**: Context API
+- **HTTP Client**: Axios
+- **Real-Time**: Socket.IO Client 4.5+
+- **CSS**: Modern CSS3 with:
+  - Backdrop-filter (glass-morphism)
+  - CSS animations (keyframes)
+  - Flexbox layouts
+  - Gradient backgrounds
 
 ### Infrastructure
 - **Containerization**: Docker + Docker Compose
-- **SSL/TLS**: HTTPS enabled
+- **SSL/TLS**: HTTPS enabled with self-signed certs
 - **Cloud Database**: MongoDB Atlas
+- **Public Access**: ngrok tunneling
+- **Build Tool**: Vite (for React)
 
 ---
 
@@ -121,8 +169,10 @@ Built with scalability in mind, the system uses MongoDB Atlas for cloud-based da
 
 ### Prerequisites
 - Python 3.9+
+- Node.js 18+ & npm
 - Docker & Docker Compose
 - MongoDB Atlas account
+- ngrok (for public access)
 
 ### Quick Start
 
@@ -132,39 +182,77 @@ git clone <repo-url>
 cd Chat-Room
 ```
 
-2. **Configure environment** (create `.env`)
+2. **Configure environment** (create `.env` in Chat-Room/)
 ```env
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/
+MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/?authSource=admin
 DATABASE_NAME=chatroom_db
-SECRET_KEY=your-secret-key
+SECRET_KEY=your-secret-key-here
+USE_SSL=false  # Set to 'true' for local HTTPS, 'false' for ngrok
 ```
 
-3. **Generate SSL certificates**
+3. **Generate SSL certificates** (optional, for local HTTPS)
 ```bash
 openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
 ```
 
-4. **Run with Docker**
+4. **Build React frontend**
+```bash
+cd frontend
+npm install
+npm run build
+cd ..
+```
+
+5. **Run with Docker**
 ```bash
 docker-compose up -d --build
 ```
 
-5. **Access**: https://localhost:8080
+6. **Access locally**: http://localhost:8080
+
+7. **Public access** (optional, using ngrok)
+```bash
+ngrok http 8080
+# Use the https://xxxxx.ngrok-free.app URL
+```
 
 ---
 
 ## 📖 Usage
 
 ### Web Application
-1. Register/Login at `https://localhost:8080/auth`
-2. Search users and send friend requests
-3. Accept requests in sidebar
-4. Click contact to start chatting
-5. Remove friends with 🗑️ button
+1. **Access the app** at `http://localhost:8080` or your ngrok URL
+2. **Sign up** or **login** on the nature-themed auth page 🌿
+3. **Search for users** using the "Search nature lovers" box 🌸
+4. **Send friend requests** by clicking the ➕ button
+5. **Accept requests** from the "Friend Requests" section
+6. **Click a contact** to open chat window
+7. **Send messages** - type and press Enter
+8. **Share images** - click 📷 button, select image, send
+9. **Remove friends** - click 🗑️ button (deletes all chat history)
 
-### User Management
+### Development Mode (React)
+```bash
+cd frontend
+npm run dev  # Runs on localhost:3000 with hot reload
+```
+
+### User Management (CLI)
 ```bash
 python3 manage_users.py
+# Options: List users, delete user, change password, view stats
+```
+
+### Docker Commands
+```bash
+# View logs
+docker-compose logs -f web
+
+# Stop containers
+docker-compose down
+
+# Rebuild after changes
+docker-compose up -d --build
 ```
 
 ---
@@ -172,23 +260,40 @@ python3 manage_users.py
 ## 📡 API Documentation
 
 ### REST Endpoints
-- `POST /auth` - Login/signup
-- `GET /api/users/search?q={query}` - Search users
-- `POST /api/friend-requests/send` - Send request
-- `GET /api/friend-requests/pending` - Get requests
+
+#### Authentication
+- `POST /api/signup` - Create new user account
+- `POST /api/login` - Authenticate user
+- `POST /api/logout` - End session
+
+#### User Discovery
+- `GET /api/users/search?q={query}` - Search users (autocomplete)
+
+#### Friend Requests
+- `POST /api/friend-requests/send` - Send friend request
+- `GET /api/friend-requests/pending` - Get pending requests
 - `POST /api/friend-requests/accept` - Accept request
-- `POST /api/contacts/remove` - Remove contact
+- `POST /api/friend-requests/reject` - Reject request
+
+#### Contacts & Messages
+- `GET /api/contacts` - Get user's contacts
+- `POST /api/contacts/remove` - Remove contact & delete history
+- `POST /api/messages/image` - Upload & send image (multipart/form-data)
 
 ### WebSocket Events
-**Emit:**
-- `load_conversation` - Load chat history
-- `send_private_message` - Send message
 
-**Listen:**
-- `conversation_loaded` - Receive history
-- `new_message` - Receive message
-- `friend_request_received` - New request
-- `contacts_updated` - Contact list changed
+#### Client → Server (Emit)
+- `connect` - Establish WebSocket connection
+- `load_conversation` - Load chat history with contact
+- `send_private_message` - Send text message
+
+#### Server → Client (Listen)
+- `conversation_loaded` - Receive chat history (50 messages)
+- `new_message` - Receive new message in real-time
+- `friend_request_received` - New friend request notification
+- `friend_request_accepted` - Request accepted notification
+- `contacts_updated` - Contact list changed (add/remove/online status)
+- `disconnect` - WebSocket disconnected
 
 ---
 
@@ -211,7 +316,8 @@ python3 manage_users.py
 {
     sender: String (user_id),
     recipient: String (user_id),
-    content: String,
+    content: String,  // Text content or image URL
+    type: String,     // "text" or "image"
     timestamp: Date,
     read: Boolean
 }
@@ -223,6 +329,8 @@ python3 manage_users.py
     user_id: String,
     contact_id: String,
     contact_username: String,
+    online: Boolean,      // Real-time online status
+    last_seen: Date,
     added_at: Date
 }
 ```
@@ -241,12 +349,18 @@ python3 manage_users.py
 
 ## 🔒 Security Features
 
-- **Password Hashing**: bcrypt (cost 12)
-- **Session Management**: Flask-Login
-- **HTTPS**: SSL/TLS encryption
-- **Input Validation**: Server-side checks
-- **XSS Prevention**: HTML escaping
-- **Environment Secrets**: `.env` file
+- **Password Hashing**: bcrypt (cost 12) with salt
+- **Session Management**: Flask-Login with secure cookies
+- **HTTPS**: SSL/TLS encryption (optional, configurable)
+- **Input Validation**: Server-side checks & sanitization
+- **File Upload Security**: 
+  - File size limits (5MB for images)
+  - File type validation (images only)
+  - Secure file handling
+- **XSS Prevention**: HTML escaping & Content-Security-Policy
+- **Environment Secrets**: `.env` file (not in git)
+- **CORS**: Configured for Socket.IO security
+- **Authentication**: Protected routes & API endpoints
 
 ---
 
@@ -254,13 +368,19 @@ python3 manage_users.py
 
 ### Planned Features
 - [ ] Group chat rooms
-- [ ] File/image sharing
+- [x] ~~File/image sharing~~ ✅ **COMPLETED**
 - [ ] Voice/video calls (WebRTC)
 - [ ] End-to-end encryption
-- [ ] Push notifications
-- [ ] Message reactions
+- [ ] Push notifications (PWA)
+- [ ] Message reactions & emojis
 - [ ] Typing indicators
-- [ ] Dark mode
+- [ ] Dark mode toggle
+- [ ] Message editing & deletion
+- [ ] File attachments (PDFs, docs)
+- [ ] Voice messages
+- [ ] User profiles with avatars
+- [ ] Multiple image uploads
+- [ ] Image gallery view
 
 ### Scalability
 - [ ] Redis for caching/pub-sub
@@ -282,15 +402,38 @@ python3 manage_users.py
 
 ```
 Chat-Room/
-├── app_with_auth.py      # Main Flask app
-├── database.py           # MongoDB models
-├── manage_users.py       # CLI management
-├── requirements.txt      # Dependencies
-├── docker-compose.yml    # Container config
-├── templates/
-│   ├── auth.html        # Login/signup
-│   └── chat.html        # Chat interface
-└── README.md            # Documentation
+├── app_with_auth.py           # Main Flask application
+├── database.py                # MongoDB models & operations
+├── manage_users.py            # CLI user management tool
+├── requirements.txt           # Python dependencies
+├── docker-compose.yml         # Multi-container orchestration
+├── Dockerfile.web             # Web app container config
+├── cert.pem & key.pem        # SSL certificates (self-signed)
+├── .env                       # Environment variables (not in git)
+├── .gitignore                 # Git ignore rules
+├── frontend/                  # React SPA
+│   ├── src/
+│   │   ├── App.jsx           # Main app component & routing
+│   │   ├── App.css           # Global styles
+│   │   ├── pages/
+│   │   │   ├── Auth.jsx      # Login/signup page
+│   │   │   ├── Auth.css      # Auth page styles (animated bg)
+│   │   │   ├── Chat.jsx      # Main chat page
+│   │   │   └── Chat.css      # Chat page styles (nature theme)
+│   │   ├── components/
+│   │   │   ├── Sidebar.jsx   # Contacts & search
+│   │   │   ├── Sidebar.css   # Sidebar glass-morphism
+│   │   │   ├── ChatWindow.jsx # Message display & input
+│   │   │   ├── ChatWindow.css # Chat bubbles & image messages
+│   │   │   ├── Toast.jsx     # Notification component
+│   │   │   └── Toast.css     # Toast animations
+│   │   └── context/
+│   │       ├── AuthContext.jsx    # Auth state management
+│   │       └── SocketContext.jsx  # WebSocket management
+│   ├── package.json          # Node dependencies
+│   ├── vite.config.js        # Vite build config
+│   └── dist/                 # Production build (served by Flask)
+└── README.md                  # This file
 ```
 
 ---
@@ -303,10 +446,36 @@ Chat-Room/
 
 ## 🙏 Acknowledgments
 
-- Flask - Python web framework
-- Socket.IO - Real-time engine
-- MongoDB - NoSQL database
-- Docker - Containerization
+- **Flask** - Python web framework
+- **React** - Modern UI library
+- **Socket.IO** - Real-time bidirectional communication
+- **MongoDB** - Flexible NoSQL database
+- **Docker** - Containerization platform
+- **Vite** - Lightning-fast build tool
+- **ngrok** - Secure tunneling for public access
+
+---
+
+## 🎨 Design Credits
+
+The beautiful nature theme and glass-morphism effects were inspired by:
+- Modern UI/UX design trends
+- Nature photography and organic aesthetics
+- Glass-morphism design patterns
+- Smooth CSS animations and transitions
+
+---
+
+## 📸 Screenshots
+
+### 🌿 Nature-Themed Login
+Beautiful animated gradient background with floating particles and glass-morphism card.
+
+### 💬 Chat Interface
+Real-time messaging with glass panels, nature emojis, and smooth animations.
+
+### 📷 Image Sharing
+Upload and share images with preview, click-to-enlarge, and automatic delivery.
 
 ---
 
@@ -314,6 +483,8 @@ Chat-Room/
 
 **⭐ Star this repo if you found it useful! ⭐**
 
-Made with ❤️ and ☕
+Made with ❤️, ☕, and 🌿
+
+**Built by Karl Seryani**
 
 </div>

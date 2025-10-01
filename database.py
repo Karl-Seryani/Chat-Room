@@ -59,8 +59,15 @@ class User:
         """Verify username and password"""
         user = users_collection.find_one({'username': username})
         
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
-            return user
+        if user:
+            # Handle both old format (password) and new format (password_hash)
+            password_field = user.get('password_hash') or user.get('password')
+            if password_field:
+                # Handle both string and bytes password storage
+                if isinstance(password_field, str):
+                    password_field = password_field.encode('utf-8')
+                if bcrypt.checkpw(password.encode('utf-8'), password_field):
+                    return user
         return None
     
     @staticmethod
@@ -88,12 +95,13 @@ class Message:
     """Message model for storing chat messages"""
     
     @staticmethod
-    def create(sender_id, recipient_id, content):
-        """Create a new message"""
+    def create(sender_id, recipient_id, content, message_type='text'):
+        """Create a new message (text or image)"""
         message_data = {
             'sender': sender_id,
             'recipient': recipient_id,
             'content': content,
+            'type': message_type,  # 'text' or 'image'
             'timestamp': datetime.utcnow(),
             'read': False
         }
@@ -287,7 +295,7 @@ class Contact:
     
     @staticmethod
     def get_contacts(user_id):
-        """Get all contacts for a user"""
+        """Get all contacts for a user with real-time online status"""
         contacts = contacts_collection.find({'user_id': user_id})
         
         contact_list = []
@@ -301,6 +309,16 @@ class Contact:
                 })
         
         return contact_list
+    
+    @staticmethod
+    def set_online_status(user_id, online=True):
+        """Update user's online status"""
+        from bson import ObjectId
+        users_collection.update_one(
+            {'_id': ObjectId(user_id)},
+            {'$set': {'online': online, 'last_seen': datetime.utcnow()}}
+        )
+        return True
     
     @staticmethod
     def is_contact(user_id, contact_id):

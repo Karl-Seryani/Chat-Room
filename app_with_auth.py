@@ -4,11 +4,14 @@ Authenticated Chat Room with MongoDB
 Features: User authentication, contacts, private messaging
 """
 
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from functools import wraps
 import os
+import base64
+import uuid
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -16,7 +19,7 @@ load_dotenv()
 
 # Import database models
 try:
-    from database import User, Message, Contact, FriendRequest, db
+    from database import User, Message, Contact, FriendRequest, db, contacts_collection
     DB_AVAILABLE = True
 except Exception as e:
     print(f"⚠️  Database not configured: {e}")
@@ -24,8 +27,12 @@ except Exception as e:
     DB_AVAILABLE = False
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, 
+            static_folder='frontend/dist/assets',
+            static_url_path='/assets')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-this')
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB max file size
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
 
 # Initialize Socket.IO
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -33,7 +40,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # Initialize Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'auth_page'
+login_manager.login_view = 'index'  # Redirect to React app
 
 # Store active connections: {user_id: session_id}
 active_users = {}
@@ -57,23 +64,24 @@ def load_user(user_id):
 # Routes
 @app.route('/')
 def index():
-    """Redirect to auth or chat based on login status"""
-    if current_user.is_authenticated:
-        return redirect(url_for('chat_page'))
-    return redirect(url_for('auth_page'))
+    """Serve React app"""
+    return send_from_directory('frontend/dist', 'index.html')
 
-@app.route('/auth')
-def auth_page():
-    """Serve login/signup page"""
-    if current_user.is_authenticated:
-        return redirect(url_for('chat_page'))
-    return render_template('auth.html')
+@app.route('/<path:path>')
+def serve_react(path):
+    """Serve React app for all routes (for React Router)"""
+    if path.startswith('api/') or path.startswith('socket.io/'):
+        return jsonify({'error': 'Not found'}), 404
+    
+    # Check if file exists in dist folder
+    file_path = os.path.join('frontend/dist', path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return send_from_directory('frontend/dist', path)
+    
+    # Otherwise serve index.html (for React Router)
+    return send_from_directory('frontend/dist', 'index.html')
 
-@app.route('/chat')
-@login_required
-def chat_page():
-    """Serve main chat page (requires login)"""
-    return render_template('chat.html')
+# Old template routes removed - React handles all routing
 
 # Authentication API
 @app.route('/api/signup', methods=['POST'])
@@ -321,17 +329,111 @@ def remove_contact():
         'contact_username': contact_username
     }), 200
 
+@app.route('/api/messages/image', methods=['POST'])
+@login_required
+def upload_image():
+    """Handle image upload and send as message"""
+    if not DB_AVAILABLE:
+        return jsonify({'error': 'Database not configured'}), 500
+    
+    # Check if image file is present
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+    
+    file = request.files['image']
+    recipient_id = request.form.get('recipient_id')
+    
+    if not recipient_id:
+        return jsonify({'error': 'Recipient ID required'}), 400
+    
+    if file.filename == '':
+        return jsonify({'error': 'No file selected'}), 400
+    
+    # Validate file type
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+    file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+    
+    if file_ext not in allowed_extensions:
+        return jsonify({'error': 'Invalid file type. Use: png, jpg, jpeg, gif, webp'}), 400
+    
+    try:
+        # Read file and convert to base64 (for simplicity, storing inline)
+        # In production, you'd upload to S3/CDN
+        file_data = file.read()
+        
+        # Create data URI
+        mime_type = f"image/{file_ext}"
+        base64_data = base64.b64encode(file_data).decode('utf-8')
+        data_uri = f"data:{mime_type};base64,{base64_data}"
+        
+        # Save message to database
+        message = Message.create(
+            sender_id=current_user.id,
+            recipient_id=recipient_id,
+            content=data_uri,
+            message_type='image'
+        )
+        
+        # Send via WebSocket to recipient if online
+        if recipient_id in active_users:
+            socketio.emit('new_message', {
+                'sender_id': current_user.id,
+                'sender_username': current_user.username,
+                'content': data_uri,
+                'type': 'image',
+                'timestamp': message['timestamp'].isoformat(),
+                'is_mine': False
+            }, room=active_users[recipient_id])
+        
+        # Send confirmation to sender
+        if current_user.id in active_users:
+            socketio.emit('new_message', {
+                'sender_id': current_user.id,
+                'sender_username': current_user.username,
+                'recipient_id': recipient_id,
+                'content': data_uri,
+                'type': 'image',
+                'timestamp': message['timestamp'].isoformat(),
+                'is_mine': True
+            }, room=active_users[current_user.id])
+        
+        return jsonify({
+            'success': True,
+            'message': 'Image sent successfully',
+            'image_url': data_uri
+        }), 200
+        
+    except Exception as e:
+        print(f"❌ Error uploading image: {e}")
+        return jsonify({'error': 'Failed to upload image'}), 500
+
 # WebSocket Events
+def notify_contacts_status_change(user_id, online):
+    """Notify all contacts when a user's status changes"""
+    # Get all users who have this user as a contact
+    contacts_with_user = contacts_collection.find({'contact_id': user_id})
+    
+    for contact_entry in contacts_with_user:
+        contact_user_id = contact_entry['user_id']
+        if contact_user_id in active_users:
+            # Send updated contact list to this user
+            updated_contacts = Contact.get_contacts(contact_user_id)
+            socketio.emit('contacts_updated', {
+                'contacts': updated_contacts
+            }, room=active_users[contact_user_id])
+
 @socketio.on('connect')
 def handle_connect():
     """Handle WebSocket connection"""
     if current_user.is_authenticated:
         # Track active user
         active_users[current_user.id] = request.sid
-        User.set_online(current_user.id, True)
         
-        # Notify contacts user is online
-        emit('user_online', {'user_id': current_user.id, 'username': current_user.username}, broadcast=True)
+        # Set user as online in database
+        Contact.set_online_status(current_user.id, online=True)
+        
+        # Notify all contacts that this user is now online
+        notify_contacts_status_change(current_user.id, online=True)
         
         print(f'✅ User {current_user.username} connected')
 
@@ -339,13 +441,15 @@ def handle_connect():
 def handle_disconnect():
     """Handle WebSocket disconnection"""
     if current_user.is_authenticated:
+        # Remove from active users
         if current_user.id in active_users:
             del active_users[current_user.id]
         
-        User.set_online(current_user.id, False)
+        # Set user as offline in database
+        Contact.set_online_status(current_user.id, online=False)
         
-        # Notify contacts user is offline
-        emit('user_offline', {'user_id': current_user.id, 'username': current_user.username}, broadcast=True)
+        # Notify all contacts that this user is now offline
+        notify_contacts_status_change(current_user.id, online=False)
         
         print(f'❌ User {current_user.username} disconnected')
 
@@ -372,6 +476,7 @@ def handle_load_conversation(data):
             'sender_id': msg['sender'],
             'sender_name': current_user.username if msg['sender'] == current_user.id else contact['username'],
             'content': msg['content'],
+            'type': msg.get('type', 'text'),  # Include message type (text or image)
             'timestamp': msg['timestamp'].isoformat(),
             'is_mine': msg['sender'] == current_user.id
         })
@@ -405,6 +510,7 @@ def handle_private_message(data):
         'sender_name': current_user.username,
         'recipient_id': recipient_id,
         'content': content,
+        'type': 'text',  # Text message type
         'timestamp': message['timestamp'].isoformat(),
         'is_mine': True
     }
@@ -432,9 +538,19 @@ if __name__ == '__main__':
         print("\n" + "="*60 + "\n")
     
     # Run the app
-    socketio.run(app, 
-                 host='0.0.0.0', 
-                 port=8080, 
-                 debug=True,
-                 certfile='cert.pem',
-                 keyfile='key.pem')
+    use_ssl = os.getenv('USE_SSL', 'true').lower() == 'true'
+    
+    if use_ssl:
+        print("🔐 HTTPS mode with SSL certificates")
+        socketio.run(app, 
+                     host='0.0.0.0', 
+                     port=8080, 
+                     debug=True,
+                     certfile='cert.pem',
+                     keyfile='key.pem')
+    else:
+        print("🌐 HTTP mode (for ngrok)")
+        socketio.run(app, 
+                     host='0.0.0.0', 
+                     port=8080, 
+                     debug=True)
