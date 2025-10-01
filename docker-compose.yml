@@ -1,0 +1,33 @@
+# Docker Compose file for Chat Room application
+# Usage: docker-compose up -d (start), docker-compose down (stop)
+
+version: '3.8'
+
+services:
+  # Original TCP chat server (for terminal clients)
+  server:
+    build: .
+    container_name: chatroom-server
+    ports:
+      - "12345:12345"    # Map port 12345 from container to host
+    networks:
+      - chatroom-network
+    restart: unless-stopped
+
+  # Web-based chat application (access via browser)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: chatroom-web
+    ports:
+      - "8080:8080"      # Map port 8080 on host to port 8080 in container (HTTPS enabled)
+    networks:
+      - chatroom-network
+    restart: unless-stopped
+    environment:
+      - FLASK_ENV=development
+
+networks:
+  chatroom-network:
+    driver: bridge

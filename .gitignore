@@ -1,0 +1,8 @@
+*.pem
+__pycache__/
+*.pyc
+.DS_Store
+web_app.log
+chat_history.json
+.env
+.env.example

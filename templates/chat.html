@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left: 4px solid #2ecc71; }
+        .toast.error { border-left: 4px solid #e74c3c; }
+        .toast.info { border-left: 4px solid #3498db; }
+
+        /* Container */
+        .container { display: flex; width: 100%; height: 100%; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+        }
+
+        /* Add Contact with Autocomplete */
+        .add-contact {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .add-contact input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .add-contact input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 60px;
+            left: 15px;
+            right: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-dropdown.show { display: block; }
+
+        .autocomplete-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .autocomplete-item:hover {
+            background: #f5f5f5;
+        }
+
+        /* Friend Requests Section */
+        .friend-requests {
+            border-bottom: 1px solid #e0e0e0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .friend-requests-header {
+            padding: 10px 15px;
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .request-badge {
+            background: #e74c3c;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 0.8em;
+        }
+
+        .request-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .request-username {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-accept, .btn-reject {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+
+        .btn-accept {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* Contacts List */
+        .contacts-list { flex: 1; overflow-y: auto; }
+
+        .contact-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .contact-item:hover { background: #f5f5f5; }
+        .contact-item.active { background: #e3e7ff; }
+
+        .contact-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .contact-status {
+            font-size: 0.85em;
+            color: #999;
+        }
+
+        .contact-status.online { color: #2ecc71; }
+        .contact-status.online::before {
+            content: '●';
+            margin-right: 5px;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+        }
+
+        .chat-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+        }
+
+        .btn-remove-contact {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+
+        .btn-remove-contact:hover {
+            background: #c0392b;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.mine { justify-content: flex-end; }
+
+        .message-bubble {
+            max-width: 60%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+        }
+
+        .message.mine .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.theirs .message-bubble {
+            background: white;
+            color: #333;
+        }
+
+        .message-input-container {
+            background: white;
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input-container input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+        }
+
+        .message-input-container button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>💬 Chats</h2>
+                <div class="username" id="current-user">Loading...</div>
+            </div>
+
+            <!-- Add Contact with Autocomplete -->
+            <div class="add-contact">
+                <input type="text" id="add-contact-input" placeholder="🔍 Search users to add..." autocomplete="off" />
+                <div class="autocomplete-dropdown" id="autocomplete-dropdown"></div>
+            </div>
+
+            <!-- Friend Requests -->
+            <div class="friend-requests" id="friend-requests-section" style="display: none;">
+                <div class="friend-requests-header">
+                    Friend Requests
+                    <span class="request-badge" id="request-badge">0</span>
+                </div>
+                <div id="friend-requests-list"></div>
+            </div>
+
+            <!-- Contacts List -->
+            <div class="contacts-list" id="contacts-list">
+                <div style="padding: 20px; text-align: center; color: #999;">
+                    No contacts yet. Add someone!
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header" id="chat-header" style="display: none;">
+                <h3 id="chat-with-name">Select a contact</h3>
+                <button class="btn-remove-contact" id="btn-remove-contact" onclick="removeContact()">
+                    🗑️ Remove Friend
+                </button>
+            </div>
+
+            <div class="empty-state" id="empty-state">
+                👈 Select a contact to start chatting
+            </div>
+
+            <div class="messages-container" id="messages" style="display: none;"></div>
+
+            <div class="message-input-container" id="input-container" style="display: none;">
+                <input type="text" id="message-input" placeholder="Type a message..." maxlength="500" />
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        let currentContactId = null;
+        let currentContactName = null;
+        let autocompleteTimeout = null;
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Load initial data
+        loadContacts();
+        loadFriendRequests();
+
+        function loadContacts() {
+            fetch('/api/contacts')
+                .then(res => res.json())
+                .then(data => renderContacts(data.contacts))
+                .catch(() => showToast('Failed to load contacts', 'error'));
+        }
+
+        function loadFriendRequests() {
+            fetch('/api/friend-requests/pending')
+                .then(res => res.json())
+                .then(data => renderFriendRequests(data.requests))
+                .catch(() => showToast('Failed to load requests', 'error'));
+        }
+
+        // Autocomplete for username search
+        const addContactInput = document.getElementById('add-contact-input');
+        const autocompleteDropdown = document.getElementById('autocomplete-dropdown');
+
+        addContactInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            
+            clearTimeout(autocompleteTimeout);
+            
+            if (query.length < 2) {
+                autocompleteDropdown.classList.remove('show');
+                return;
+            }
+            
+            // Debounce search (wait 300ms after typing stops)
+            autocompleteTimeout = setTimeout(() => {
+                fetch(`/api/users/search?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.users.length > 0) {
+                            renderAutocomplete(data.users);
+                        } else {
+                            autocompleteDropdown.innerHTML = '<div class="autocomplete-item" style="color: #999;">No users found</div>';
+                            autocompleteDropdown.classList.add('show');
+                        }
+                    });
+            }, 300);
+        });
+
+        function renderAutocomplete(users) {
+            autocompleteDropdown.innerHTML = users.map(user => `
+                <div class="autocomplete-item" onclick="sendFriendRequest('${user.username}')">
+                    <strong>${user.username}</strong>
+                </div>
+            `).join('');
+            autocompleteDropdown.classList.add('show');
+        }
+
+        // Click outside to close autocomplete
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.add-contact')) {
+                autocompleteDropdown.classList.remove('show');
+            }
+        });
+
+        // Send friend request
+        async function sendFriendRequest(username) {
+            autocompleteDropdown.classList.remove('show');
+            addContactInput.value = '';
+            
+            try {
+                const res = await fetch('/api/friend-requests/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast(`✅ Friend request sent to ${username}`, 'success');
+                } else {
+                    showToast(`❌ ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Network error', 'error');
+            }
+        }
+
+        // Render friend requests
+        function renderFriendRequests(requests) {
+            const section = document.getElementById('friend-requests-section');
+            const list = document.getElementById('friend-requests-list');
+            const badge = document.getElementById('request-badge');
+
+            if (requests.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            badge.textContent = requests.length;
+
+            list.innerHTML = requests.map(req => `
+                <div class="request-item" data-request-id="${req.id}">
+                    <div class="request-username">${req.sender_username}</div>
+                    <div class="request-actions">
+                        <button class="btn-accept" onclick="acceptRequest('${req.id}', '${req.sender_username}')">✓</button>
+                        <button class="btn-reject" onclick="rejectRequest('${req.id}')">✗</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Accept friend request
+        async function acceptRequest(requestId, username) {
+            try {
+                const res = await fetch('/api/friend-requests/accept', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: requestId })
+                });
+
+                if (res.ok) {
+                    showToast(`✅ You and ${username} are now friends!`, 'success');
+                    loadFriendRequests();
+                    // Contacts will update via WebSocket
+                } else {
+                    showToast('❌ Failed to accept request', 'error');
+                }
+            } catch (error) {
+                showToast('❌ Network error', 'error');
+            }
+        }
+
+        // Reject friend request
+        async function rejectRequest(requestId) {
+            try {
+                await fetch('/api/friend-requests/reject', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: requestId })
+                });
+
+                showToast('Friend request rejected', 'info');
+                loadFriendRequests();
+            } catch (error) {
+                showToast('❌ Network error', 'error');
+            }
+        }
+
+        // Render contacts
+        function renderContacts(contacts) {
+            const list = document.getElementById('contacts-list');
+            
+            if (contacts.length === 0) {
+                list.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">No contacts yet. Add someone!</div>';
+                return;
+            }
+
+            list.innerHTML = contacts.map(contact => `
+                <div class="contact-item" data-contact-id="${contact.id}" onclick="selectContact('${contact.id}', '${contact.username}')">
+                    <div class="contact-name">${contact.username}</div>
+                    <div class="contact-status ${contact.online ? 'online' : ''}">${contact.online ? 'Online' : 'Offline'}</div>
+                </div>
+            `).join('');
+        }
+
+        // Select contact to chat
+        function selectContact(contactId, contactName) {
+            currentContactId = contactId;
+            currentContactName = contactName;
+
+            // Update UI
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('chat-header').style.display = 'block';
+            document.getElementById('messages').style.display = 'block';
+            document.getElementById('input-container').style.display = 'flex';
+            document.getElementById('chat-with-name').textContent = contactName;
+
+            // Highlight selected
+            document.querySelectorAll('.contact-item').forEach(item => item.classList.remove('active'));
+            document.querySelector(`[data-contact-id="${contactId}"]`).classList.add('active');
+
+            // Load conversation
+            socket.emit('load_conversation', { contact_id: contactId });
+        }
+
+        // Socket.IO event handlers
+        socket.on('conversation_loaded', (data) => {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = data.messages.map(msg => `
+                <div class="message ${msg.is_mine ? 'mine' : 'theirs'}">
+                    <div class="message-bubble">${escapeHtml(msg.content)}</div>
+                </div>
+            `).join('');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        socket.on('message_sent', (data) => {
+            addMessage(data.content, true);
+        });
+
+        socket.on('new_message', (data) => {
+            if (data.sender_id === currentContactId) {
+                addMessage(data.content, false);
+            } else {
+                showToast(`New message from ${data.sender_name}`, 'info');
+            }
+        });
+
+        socket.on('friend_request_received', (data) => {
+            showToast(`👋 Friend request from ${data.sender_username}`, 'info');
+            loadFriendRequests();
+        });
+
+        socket.on('friend_request_accepted', (data) => {
+            showToast(`✅ ${data.accepter_username} accepted your friend request!`, 'success');
+        });
+
+        socket.on('contacts_updated', (data) => {
+            renderContacts(data.contacts);
+            
+            // If currently viewing a removed contact, clear the chat
+            if (currentContactId && !data.contacts.find(c => c.id === currentContactId)) {
+                clearChat();
+            }
+        });
+
+        socket.on('contact_removed', (data) => {
+            showToast(`${data.removed_by_username} removed you from their contacts`, 'info');
+            
+            // If currently chatting with this person, clear the chat
+            if (currentContactId === data.removed_by_id) {
+                clearChat();
+            }
+        });
+
+        // Add message to UI
+        function addMessage(content, isMine) {
+            const messagesDiv = document.getElementById('messages');
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${isMine ? 'mine' : 'theirs'}`;
+            messageEl.innerHTML = `<div class="message-bubble">${escapeHtml(content)}</div>`;
+            messagesDiv.appendChild(messageEl);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Send message
+        document.getElementById('send-button')?.addEventListener('click', sendMessage);
+        document.getElementById('message-input')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const content = input.value.trim();
+            if (!content || !currentContactId) return;
+
+            socket.emit('send_private_message', {
+                recipient_id: currentContactId,
+                content: content
+            });
+
+            input.value = '';
+        }
+
+        // Remove contact function
+        async function removeContact() {
+            if (!currentContactId || !currentContactName) return;
+            
+            const confirmed = confirm(`Remove ${currentContactName} from contacts?\n\n⚠️ This will permanently delete all chat history between you.`);
+            if (!confirmed) return;
+            
+            try {
+                const res = await fetch('/api/contacts/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contact_id: currentContactId })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast(`🗑️ Removed ${data.contact_username} and deleted all chats`, 'success');
+                    clearChat();
+                    // Contacts will update via WebSocket
+                } else {
+                    showToast(`❌ ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Network error', 'error');
+            }
+        }
+
+        // Clear chat UI
+        function clearChat() {
+            currentContactId = null;
+            currentContactName = null;
+            
+            document.getElementById('empty-state').style.display = 'flex';
+            document.getElementById('chat-header').style.display = 'none';
+            document.getElementById('messages').style.display = 'none';
+            document.getElementById('input-container').style.display = 'none';
+            
+            document.querySelectorAll('.contact-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
