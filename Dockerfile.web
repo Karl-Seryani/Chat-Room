@@ -1,5 +1,5 @@
 # Dockerfile for Web Chat Application
-# This builds the Flask-based web interface
+# This builds the Flask-based web interface for ngrok + MongoDB Atlas
 
 # Use Python 3.9 as the base image
 FROM python:3.9-slim
@@ -21,11 +21,7 @@ COPY .env .
 # Copy React build
 COPY frontend/dist ./frontend/dist
 
-# Copy SSL certificates for HTTPS
-COPY cert.pem .
-COPY key.pem .
-
-# Expose port 8080 (our configured port)
+# Expose port 8080 (HTTP for ngrok)
 EXPOSE 8080
 
 # Run the authenticated web application

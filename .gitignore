@@ -1,8 +1,53 @@
-*.pem
+# Environment variables
+.env
+.env.local
+.env.example
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+.coverage
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+frontend/dist/
+build/
+dist/
+
+# Logs
+*.log
+logs/
+
+# OS
 .DS_Store
-web_app.log
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# SSL certificates (not needed for ngrok)
+*.pem
+*.key
+*.crt
+
+# Database
 chat_history.json
-.env
-.env.example
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.temp

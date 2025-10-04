@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # MongoDB connection
-MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
+MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb+srv://karlseryani_db_user:KKss6476189007@karlseryani.woyj4gm.mongodb.net/?retryWrites=true&w=majority&authSource=admin&appName=KarlSeryani')
 DATABASE_NAME = os.getenv('DATABASE_NAME', 'chatroom_db')
 
 client = MongoClient(MONGODB_URI)

@@ -1,6 +1,6 @@
 # 🌿 Nature Chat - Real-Time Messaging Platform
 
-A beautiful, full-stack real-time messaging platform with stunning nature-themed UI, animated backgrounds, and image sharing. Built with React, Flask, Socket.IO, and MongoDB. Features secure authentication, friend request system, private messaging, persistent chat history, and real-time synchronization.
+A beautiful, full-stack real-time messaging platform with stunning nature-themed UI, animated backgrounds, and image sharing. Built with React, Flask, Socket.IO, and MongoDB Atlas. Features secure authentication, friend request system, private messaging, persistent chat history, and real-time synchronization.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![React](https://img.shields.io/badge/React-18+-61DAFB.svg)
@@ -8,7 +8,7 @@ A beautiful, full-stack real-time messaging platform with stunning nature-themed
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen.svg)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![WebSocket](https://img.shields.io/badge/WebSocket-Socket.IO-black.svg)
-![HTTPS](https://img.shields.io/badge/HTTPS-Enabled-success.svg)
+![ngrok](https://img.shields.io/badge/ngrok-Public%20Access-orange.svg)
 
 ---
 
@@ -158,9 +158,8 @@ Built with scalability in mind, the system uses MongoDB Atlas for cloud persiste
 
 ### Infrastructure
 - **Containerization**: Docker + Docker Compose
-- **SSL/TLS**: HTTPS enabled with self-signed certs
 - **Cloud Database**: MongoDB Atlas
-- **Public Access**: ngrok tunneling
+- **Public Access**: ngrok tunneling (HTTP mode)
 - **Build Tool**: Vite (for React)
 
 ---
@@ -187,15 +186,10 @@ cd Chat-Room
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/?authSource=admin
 DATABASE_NAME=chatroom_db
 SECRET_KEY=your-secret-key-here
-USE_SSL=false  # Set to 'true' for local HTTPS, 'false' for ngrok
+USE_SSL=false  # HTTP mode for ngrok compatibility
 ```
 
-3. **Generate SSL certificates** (optional, for local HTTPS)
-```bash
-openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
-```
-
-4. **Build React frontend**
+3. **Build React frontend**
 ```bash
 cd frontend
 npm install
@@ -203,17 +197,17 @@ npm run build
 cd ..
 ```
 
-5. **Run with Docker**
+4. **Run with Docker**
 ```bash
 docker-compose up -d --build
 ```
 
-6. **Access locally**: http://localhost:8080
+5. **Access locally**: http://localhost:8080
 
-7. **Public access** (optional, using ngrok)
+6. **Public access** (using ngrok)
 ```bash
 ngrok http 8080
-# Use the https://xxxxx.ngrok-free.app URL
+# Use the https://xxxxx.ngrok-free.dev URL
 ```
 
 ---
@@ -237,11 +231,6 @@ cd frontend
 npm run dev  # Runs on localhost:3000 with hot reload
 ```
 
-### User Management (CLI)
-```bash
-python3 manage_users.py
-# Options: List users, delete user, change password, view stats
-```
 
 ### Docker Commands
 ```bash
