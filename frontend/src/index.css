@@ -86,3 +86,31 @@ body {
   background: var(--accent-blue);
   color: var(--bg-primary);
 }
+
+/* Horror theme overrides */
+:root {
+  --bg-primary: #000000;
+  --bg-secondary: rgba(10, 0, 0, 0.95);
+  --bg-tertiary: #130000;
+  --bg-overlay: #0d0000;
+  --bg-hover: #1a0000;
+
+  --border-default: rgba(139, 0, 0, 0.35);
+  --border-muted: rgba(139, 0, 0, 0.2);
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255,255,255,0.85);
+  --text-muted: rgba(255,255,255,0.6);
+
+  --accent-primary: #8B0000;
+  --accent-secondary: #B22222;
+  --accent-blue: #8B0000;
+  --accent-green: #2ea043;
+  --accent-purple: #a371f7;
+  --accent-red: #DC143C;
+  --accent-orange: #ffa94d;
+
+  --shadow-sm: 0 1px 3px rgba(139, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(139, 0, 0, 0.35);
+  --shadow-lg: 0 10px 25px rgba(139, 0, 0, 0.45);
+}
