@@ -160,9 +160,11 @@ function Sidebar({
               className={`contact-item ${selectedContact?.id === contact.id ? 'active' : ''}`}
               onClick={() => onSelectContact(contact)}
             >
-              <div className="contact-name">{contact.username}</div>
-              <div className={`contact-status ${contact.online ? 'online' : ''}`}>
-                {contact.online ? 'Online' : 'Offline'}
+              <div className="contact-info">
+                <div className="contact-name">{contact.username}</div>
+                <div className={`contact-status ${contact.online ? 'online' : ''}`}>
+                  {contact.online ? 'Online' : 'Offline'}
+                </div>
               </div>
             </div>
           ))

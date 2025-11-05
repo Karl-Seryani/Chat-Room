@@ -5,13 +5,39 @@
 }
 
 :root {
+  /* Modern Messenger Theme Colors */
+  --bg-primary: #1a1d2e;
+  --bg-secondary: #252945;
+  --bg-tertiary: #2d3250;
+  --bg-overlay: #1f2335;
+  --bg-hover: #353a5f;
+
+  --border-default: #3d4270;
+  --border-muted: #2a2f52;
+
+  --text-primary: #f0f0f5;
+  --text-secondary: #b0b3c1;
+  --text-muted: #7d8199;
+
+  --accent-primary: #7269ef;
+  --accent-secondary: #8b7ff4;
+  --accent-blue: #58a6ff;
+  --accent-green: #50c878;
+  --accent-purple: #a371f7;
+  --accent-red: #ff6b6b;
+  --accent-orange: #ffa94d;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  line-height: 1.5;
+  line-height: 1.6;
   font-weight: 400;
 
-  color-scheme: light;
-  color: #213547;
-  background-color: #ffffff;
+  color-scheme: dark;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -25,26 +51,38 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 #root {
   width: 100%;
   height: 100vh;
+  background: var(--bg-primary);
 }
 
+/* Custom Scrollbar - GitHub Style */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f8f9fa;
+  background: var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 4px;
+  background: var(--bg-hover);
+  border-radius: 6px;
+  border: 2px solid var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #484f58;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-blue);
+  color: var(--bg-primary);
 }
