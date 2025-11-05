@@ -537,11 +537,10 @@ if __name__ == '__main__':
         print("3. Run: pip3 install -r requirements.txt")
         print("\n" + "="*60 + "\n")
     
-    # Run the app
-    print("🔐 HTTPS mode with SSL certificates")
+    # Run the app (Nginx handles SSL)
+    print("🚀 Starting Flask-SocketIO server (HTTP on localhost:8080)")
     socketio.run(app,
-                 host='0.0.0.0',
+                 allow_unsafe_werkzeug=True,
+                 host='127.0.0.1',
                  port=8080,
-                 debug=True,
-                 certfile='cert.pem',
-                 keyfile='key.pem')
+                 debug=False)
