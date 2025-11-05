@@ -30,19 +30,43 @@ function ChatWindow({ selectedContact, onShowToast, onContactRemoved }) {
     });
 
     socket.on('message_sent', (data) => {
-      addMessage(data.content, true);
+      setMessages((prev) => [
+        ...prev,
+        {
+          content: data.content,
+          type: data.type || 'text',
+          is_mine: true,
+          timestamp: data.timestamp
+        }
+      ]);
     });
 
     socket.on('new_message', (data) => {
       if (selectedContact && data.sender_id === selectedContact.id) {
-        addMessage(data.content, false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            content: data.content,
+            type: data.type || 'text',
+            is_mine: false,
+            timestamp: data.timestamp
+          }
+        ]);
       }
+    });
+
+    socket.on('contact_removed', (data) => {
+      // Clear messages when contact removes you
+      setMessages([]);
+      onShowToast(`${data.removed_by_username} removed you from contacts`, 'info');
+      onContactRemoved();
     });
 
     return () => {
       socket.off('conversation_loaded');
       socket.off('message_sent');
       socket.off('new_message');
+      socket.off('contact_removed');
     };
   }, [socket, selectedContact]);
 
@@ -51,15 +75,25 @@ function ChatWindow({ selectedContact, onShowToast, onContactRemoved }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const addMessage = (content, isMine) => {
-    setMessages((prev) => [
-      ...prev,
-      {
-        content,
-        is_mine: isMine,
-        timestamp: new Date().toISOString()
-      }
-    ]);
+  // Helper function to format date separators
+  const formatDateSeparator = (date) => {
+    const today = new Date();
+    const msgDate = new Date(date);
+    const diffTime = today - msgDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return msgDate.toLocaleDateString('en-US', { weekday: 'long' });
+    return msgDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  // Helper function to check if we need a date separator
+  const shouldShowDateSeparator = (currentMsg, previousMsg) => {
+    if (!previousMsg) return true;
+    const currentDate = new Date(currentMsg.timestamp).toDateString();
+    const previousDate = new Date(previousMsg.timestamp).toDateString();
+    return currentDate !== previousDate;
   };
 
   const handleImageSelect = (e) => {
@@ -119,7 +153,7 @@ function ChatWindow({ selectedContact, onShowToast, onContactRemoved }) {
     setMessageInput('');
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -136,10 +170,11 @@ function ChatWindow({ selectedContact, onShowToast, onContactRemoved }) {
     if (!confirmed) return;
 
     try {
-      const response = await axios.post('/api/contacts/remove', {
+      await axios.post('/api/contacts/remove', {
         contact_id: selectedContact.id
       });
 
+      setMessages([]); // Clear messages immediately
       onShowToast(`🗑️ Removed ${selectedContact.username} and deleted all chats`, 'success');
       onContactRemoved();
     } catch (error) {
@@ -181,33 +216,43 @@ function ChatWindow({ selectedContact, onShowToast, onContactRemoved }) {
             No messages yet. Start the conversation!
           </div>
         ) : (
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`message ${msg.is_mine ? 'mine' : 'theirs'}`}
-            >
-              <div className={`message-bubble ${msg.type === 'image' ? 'image-message' : ''}`}>
-                {msg.type === 'image' ? (
-                  <img 
-                    src={msg.content} 
-                    alt="Shared image" 
-                    className="message-image"
-                    onClick={() => window.open(msg.content, '_blank')}
-                  />
-                ) : (
-                  msg.content
+          messages.map((msg, index) => {
+            const previousMsg = index > 0 ? messages[index - 1] : null;
+            const showDateSeparator = shouldShowDateSeparator(msg, previousMsg);
+
+            return (
+              <div key={index}>
+                {showDateSeparator && (
+                  <div className="date-separator">
+                    <span>{formatDateSeparator(msg.timestamp)}</span>
+                  </div>
                 )}
-              </div>
-              {msg.timestamp && (
-                <div className="message-time">
-                  {new Date(msg.timestamp).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                <div className={`message ${msg.is_mine ? 'mine' : 'theirs'}`}>
+                  <div className={`message-bubble ${msg.type === 'image' ? 'image-message' : ''}`}>
+                    {msg.type === 'image' ? (
+                      <img
+                        src={msg.content}
+                        alt="Shared image"
+                        className="message-image"
+                        onClick={() => window.open(msg.content, '_blank')}
+                      />
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
+                  {msg.timestamp && (
+                    <div className="message-time">
+                      {new Date(msg.timestamp).toLocaleTimeString([], {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))
+              </div>
+            );
+          })
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -237,7 +282,7 @@ function ChatWindow({ selectedContact, onShowToast, onContactRemoved }) {
               placeholder="Type a message..."
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               maxLength={500}
             />
             <button 
