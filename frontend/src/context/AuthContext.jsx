@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.get('/logout');
+      await axios.post('/api/logout');
       setUser(null);
       localStorage.removeItem('username');
     } catch (error) {
