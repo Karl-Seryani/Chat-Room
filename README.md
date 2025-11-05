@@ -1,14 +1,12 @@
 # 🔒 Secure Real-Time Chat Platform
 
-A production-ready messaging application demonstrating secure coding practices, network protocols, and cloud infrastructure management. Built with React, Flask, Socket.IO, and MongoDB Atlas. Features secure authentication, real-time communication, encrypted data transmission, and scalable containerized deployment.
+A production-ready messaging application demonstrating secure coding practices, network protocols, and cloud infrastructure management. Built with React, Flask, Socket.IO, and MongoDB Atlas. Features secure authentication, real-time communication, and encrypted data transmission.
 
 ![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
 ![React](https://img.shields.io/badge/React-18+-61DAFB.svg)
 ![Flask](https://img.shields.io/badge/Flask-3.0.0-green.svg)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)
 ![WebSocket](https://img.shields.io/badge/WebSocket-Socket.IO-black.svg)
-![ngrok](https://img.shields.io/badge/ngrok-Public%20Access-orange.svg)
 
 ---
 
@@ -29,16 +27,16 @@ A production-ready messaging application demonstrating secure coding practices, 
 
 ## 🎯 Overview
 
-**Secure Chat Platform** is a **production-ready real-time messaging application** demonstrating cybersecurity best practices, secure network protocols, and cloud infrastructure management. This application implements secure coding practices including encrypted authentication, WebSocket communication protocols, NoSQL database security, and containerized deployment.
+**Secure Chat Platform** is a **production-ready real-time messaging application** demonstrating cybersecurity best practices, secure network protocols, and cloud infrastructure management. This application implements secure coding practices including encrypted authentication, WebSocket communication protocols, and NoSQL database security.
 
 The platform features:
 - 🔐 **Secure Authentication**: bcrypt password hashing, session management, input validation
 - 🌐 **Network Security**: WebSocket protocols, HTTPS/SSL, CORS configuration
-- ☁️ **Cloud Infrastructure**: MongoDB Atlas database, Docker containerization
+- ☁️ **Cloud Infrastructure**: MongoDB Atlas database
 - 🔒 **Data Protection**: Encrypted transmission, secure file handling, environment secrets
 - 📡 **Real-time Communication**: Socket.IO protocols, instant messaging, status updates
 
-Built with security in mind, the system implements secure coding practices, network protocol management, cloud database security, containerized deployment, and secure real-time communication protocols.
+Built with security in mind, the system implements secure coding practices, network protocol management, cloud database security, and secure real-time communication protocols.
 
 ---
 
@@ -60,8 +58,6 @@ Built with security in mind, the system implements secure coding practices, netw
 
 ### ☁️ Cloud Infrastructure
 - **MongoDB Atlas**: Cloud NoSQL database with automated backups and scaling
-- **Docker Containerization**: Isolated application deployment with environment consistency
-- **ngrok Tunneling**: Secure public access with encrypted tunnel protocols
 - **Environment Configuration**: Secure environment variable management for production deployment
 
 ### 🗄️ Database Architecture
@@ -99,9 +95,7 @@ Built with security in mind, the system implements secure coding practices, netw
 - **Security**: CSP headers, XSS prevention, secure cookie handling
 
 ### Infrastructure & DevOps
-- **Containerization**: Docker + Docker Compose (Application containerization)
 - **Cloud Database**: MongoDB Atlas (Managed cloud database)
-- **Public Access**: ngrok tunneling (Secure tunnel for public access)
 - **Environment**: Production-ready configuration with security hardening
 
 ---
@@ -111,9 +105,7 @@ Built with security in mind, the system implements secure coding practices, netw
 ### Prerequisites
 - Python 3.9+
 - Node.js 18+ & npm
-- Docker & Docker Compose
 - MongoDB Atlas account
-- ngrok (for public access)
 
 ### Quick Start
 
@@ -128,7 +120,6 @@ cd Chat-Room
 MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/?authSource=admin
 DATABASE_NAME=chatroom_db
 SECRET_KEY=your-secret-key-here
-USE_SSL=false  # HTTP mode for ngrok compatibility
 ```
 
 3. **Build React frontend**
@@ -139,47 +130,32 @@ npm run build
 cd ..
 ```
 
-4. **Run with Docker**
+4. **Install Python dependencies**
 ```bash
-docker-compose up -d --build
+pip3 install -r requirements.txt
 ```
 
-5. **Access locally**: http://localhost:8080
-
-6. **Public access** (using ngrok)
+5. **Run the application**
 ```bash
-ngrok http 8080
-# Use the https://xxxxx.ngrok-free.dev URL
+python3 app_with_auth.py
 ```
+
+6. **Access the app**: https://localhost:8080
 
 ---
 
 ## 📖 Usage
 
 ### Application Access
-1. **Local Development**: Access at `http://localhost:8080`
-2. **Public Access**: Use ngrok tunnel URL for external testing
-3. **Authentication**: Secure login/signup with bcrypt password hashing
-4. **Real-Time Features**: WebSocket connection for instant messaging
-5. **API Testing**: RESTful endpoints for user management and messaging
+1. **Local Development**: Access at `https://localhost:8080`
+2. **Authentication**: Secure login/signup with bcrypt password hashing
+3. **Real-Time Features**: WebSocket connection for instant messaging
+4. **API Testing**: RESTful endpoints for user management and messaging
 
 ### Development Mode (React)
 ```bash
 cd frontend
 npm run dev  # Runs on localhost:3000 with hot reload
-```
-
-
-### Docker Commands
-```bash
-# View logs
-docker-compose logs -f web
-
-# Stop containers
-docker-compose down
-
-# Rebuild after changes
-docker-compose up -d --build
 ```
 
 ---
@@ -330,8 +306,6 @@ Chat-Room/
 ├── database.py                # MongoDB models & operations
 ├── manage_users.py            # CLI user management tool
 ├── requirements.txt           # Python dependencies
-├── docker-compose.yml         # Multi-container orchestration
-├── Dockerfile.web             # Web app container config
 ├── cert.pem & key.pem        # SSL certificates (self-signed)
 ├── .env                       # Environment variables (not in git)
 ├── .gitignore                 # Git ignore rules
@@ -374,9 +348,7 @@ Chat-Room/
 - **React** - Modern UI library
 - **Socket.IO** - Real-time bidirectional communication
 - **MongoDB** - Flexible NoSQL database
-- **Docker** - Containerization platform
 - **Vite** - Lightning-fast build tool
-- **ngrok** - Secure tunneling for public access
 
 ---
 

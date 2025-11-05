@@ -38,7 +38,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# SSL certificates (not needed for ngrok)
+# SSL certificates
 *.pem
 *.key
 *.crt

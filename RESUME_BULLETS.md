@@ -1,6 +1,6 @@
 # 📋 Resume Bullets - Nature Chat Application
 
-## 🚀 **Full-Stack Real-Time Chat Application | React, Flask, MongoDB, AWS**
+## 🚀 **Full-Stack Real-Time Chat Application | React, Flask, MongoDB**
 *October 2025*
 
 ### **Primary Bullet (Most Important)**
@@ -8,13 +8,8 @@
 
 ---
 
-## 🔒 **Production AWS Deployment & Security**
-- Deployed production environment on **AWS EC2** with comprehensive security hardening including **SSH key-based authentication**, **UFW firewall**, **fail2ban intrusion prevention**, and **Nginx reverse proxy** with SSL/TLS encryption
-
----
-
 ## 🐳 **DevOps & Infrastructure Management**
-- Implemented **Docker containerization** for MongoDB database, **systemd service management** for auto-restart capabilities, and **Let's Encrypt SSL certificates** with automatic renewal for HTTPS traffic encryption
+- Implemented **systemd service management** for auto-restart capabilities and **Let's Encrypt SSL certificates** with automatic renewal for HTTPS traffic encryption
 
 ---
 
@@ -64,7 +59,7 @@
 - MongoDB, NoSQL, Database Indexing, Relationship Management
 
 ### **DevOps & Infrastructure**
-- AWS EC2, Docker, Nginx, systemd, Let's Encrypt, fail2ban, UFW, Linux (Ubuntu)
+- Nginx, systemd, Let's Encrypt, fail2ban, UFW, Linux (Ubuntu)
 
 ### **Security**
 - HTTPS/SSL, SSH Hardening, Firewall Configuration, Intrusion Prevention, Authentication
@@ -113,7 +108,7 @@ Use bullets 2, 4, 6 - Focus on security implementation and hardening
 ## 🔗 **Live Demo & Repository**
 - **Live Application**: [https://chatroom.serveblog.net](https://chatroom.serveblog.net)
 - **GitHub Repository**: [Your Repository URL]
-- **Technologies**: React, Flask, MongoDB, AWS, Docker, Nginx, Socket.IO
+- **Technologies**: React, Flask, MongoDB, Nginx, Socket.IO
 
 ---
 

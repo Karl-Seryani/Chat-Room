@@ -538,19 +538,10 @@ if __name__ == '__main__':
         print("\n" + "="*60 + "\n")
     
     # Run the app
-    use_ssl = os.getenv('USE_SSL', 'true').lower() == 'true'
-    
-    if use_ssl:
-        print("🔐 HTTPS mode with SSL certificates")
-        socketio.run(app, 
-                     host='0.0.0.0', 
-                     port=8080, 
-                     debug=True,
-                     certfile='cert.pem',
-                     keyfile='key.pem')
-    else:
-        print("🌐 HTTP mode (for ngrok)")
-        socketio.run(app, 
-                     host='0.0.0.0', 
-                     port=8080, 
-                     debug=True)
+    print("🔐 HTTPS mode with SSL certificates")
+    socketio.run(app,
+                 host='0.0.0.0',
+                 port=8080,
+                 debug=True,
+                 certfile='cert.pem',
+                 keyfile='key.pem')
