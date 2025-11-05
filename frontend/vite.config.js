@@ -8,22 +8,22 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'https://localhost:8080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false
       },
       '/auth': {
-        target: 'https://localhost:8080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false
       },
       '/logout': {
-        target: 'https://localhost:8080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false
       },
       '/socket.io': {
-        target: 'https://localhost:8080',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
         ws: true
