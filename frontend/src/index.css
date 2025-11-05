@@ -5,25 +5,27 @@
 }
 
 :root {
-  /* GitHub Dark Theme Colors */
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-tertiary: #21262d;
-  --bg-overlay: #1c2128;
-  --bg-hover: #30363d;
+  /* Modern Messenger Theme Colors */
+  --bg-primary: #1a1d2e;
+  --bg-secondary: #252945;
+  --bg-tertiary: #2d3250;
+  --bg-overlay: #1f2335;
+  --bg-hover: #353a5f;
 
-  --border-default: #30363d;
-  --border-muted: #21262d;
+  --border-default: #3d4270;
+  --border-muted: #2a2f52;
 
-  --text-primary: #e6edf3;
-  --text-secondary: #8b949e;
-  --text-muted: #6e7681;
+  --text-primary: #f0f0f5;
+  --text-secondary: #b0b3c1;
+  --text-muted: #7d8199;
 
+  --accent-primary: #7269ef;
+  --accent-secondary: #8b7ff4;
   --accent-blue: #58a6ff;
-  --accent-green: #3fb950;
+  --accent-green: #50c878;
   --accent-purple: #a371f7;
-  --accent-red: #f85149;
-  --accent-orange: #db6d28;
+  --accent-red: #ff6b6b;
+  --accent-orange: #ffa94d;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);

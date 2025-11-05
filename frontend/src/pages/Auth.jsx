@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Auth.css';
@@ -9,9 +9,120 @@ function Auth() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const { login, signup } = useAuth();
   const navigate = useNavigate();
+
+  // Audio context for horror sounds
+  const audioContextRef = useRef(null);
+  const ambienceRef = useRef(null);
+
+  // Create eerie ambient sound using Web Audio API
+  useEffect(() => {
+    // Create audio context
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioContext = new AudioContext();
+    audioContextRef.current = audioContext;
+
+    // Create ambient horror drone
+    const createAmbience = () => {
+      const oscillator1 = audioContext.createOscillator();
+      const oscillator2 = audioContext.createOscillator();
+      const oscillator3 = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      const filter = audioContext.createBiquadFilter();
+
+      // Low frequency horror drone
+      oscillator1.type = 'sine';
+      oscillator1.frequency.setValueAtTime(55, audioContext.currentTime); // Deep A note
+
+      oscillator2.type = 'triangle';
+      oscillator2.frequency.setValueAtTime(110, audioContext.currentTime);
+
+      oscillator3.type = 'sawtooth';
+      oscillator3.frequency.setValueAtTime(73.42, audioContext.currentTime); // D note (dissonant)
+
+      // Low pass filter for murkiness
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(400, audioContext.currentTime);
+      filter.Q.setValueAtTime(5, audioContext.currentTime);
+
+      // Very quiet ambient volume
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.03, audioContext.currentTime + 2);
+
+      // Connect nodes
+      oscillator1.connect(filter);
+      oscillator2.connect(filter);
+      oscillator3.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Start oscillators
+      oscillator1.start();
+      oscillator2.start();
+      oscillator3.start();
+
+      // Slowly modulate for eerie effect
+      const lfo = audioContext.createOscillator();
+      const lfoGain = audioContext.createGain();
+      lfo.frequency.setValueAtTime(0.1, audioContext.currentTime);
+      lfoGain.gain.setValueAtTime(20, audioContext.currentTime);
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+      lfo.start();
+
+      return { oscillator1, oscillator2, oscillator3, lfo };
+    };
+
+    // Delay ambience start slightly
+    const timer = setTimeout(() => {
+      ambienceRef.current = createAmbience();
+    }, 500);
+
+    // Cleanup
+    return () => {
+      clearTimeout(timer);
+      if (ambienceRef.current) {
+        const { oscillator1, oscillator2, oscillator3, lfo } = ambienceRef.current;
+        oscillator1.stop();
+        oscillator2.stop();
+        oscillator3.stop();
+        lfo.stop();
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
+  // Play creepy whisper sound on hover
+  const playWhisper = () => {
+    if (!audioContextRef.current) return;
+
+    const audioContext = audioContextRef.current;
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1000, audioContext.currentTime);
+    filter.Q.setValueAtTime(10, audioContext.currentTime);
+
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.05, audioContext.currentTime + 0.05);
+    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
+
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.2);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,7 +173,7 @@ function Auth() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>💬 Chat Room</h1>
+          <h1>Whisper</h1>
           <p>{isLogin ? 'Welcome back!' : 'Create your account'}</p>
         </div>
 
